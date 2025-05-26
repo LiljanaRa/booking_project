@@ -7,7 +7,7 @@ from django.utils import timezone
 from apps.users.choices import UserType
 
 
-class CustomUser(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=50, unique=True)
     email = models.EmailField(_('email address'), max_length=70, unique=True)
     first_name = models.CharField(_('first name'), max_length=55)
@@ -28,7 +28,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['email']
 
     def __str__(self):
-        return self.email
+        return f"{self.first_name[0].upper()}. {self.last_name}"
 
     class Meta:
         db_table = 'user'

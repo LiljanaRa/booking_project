@@ -1,0 +1,26 @@
+from django.db import models
+
+from apps.properties.models import Property
+
+
+class Address(models.Model):
+    country = models.CharField(max_length=50)
+    region = models.CharField(max_length=70, null=True, blank=True)
+    city = models.CharField(max_length=50)
+    street = models.CharField(max_length=70)
+    zip_code = models.CharField(max_length=15)
+    property = models.OneToOneField(
+        Property,
+        on_delete=models.CASCADE,
+        related_name='address'
+    )
+
+    def __str__(self):
+        return f"{self.street}, {self.city} {self.zip_code}"
+
+
+    class Meta:
+        db_table = 'address'
+        verbose_name = 'Address'
+        verbose_name_plural = 'Addresses'
+
