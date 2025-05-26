@@ -2,7 +2,6 @@ from django.db import models
 
 from apps.properties.choices import PropertyType
 from apps.users.models import User
-from apps.properties.models import Address
 
 
 class Property(models.Model):
@@ -15,7 +14,8 @@ class Property(models.Model):
     rooms = models.PositiveSmallIntegerField()
     property_type = models.CharField(
         max_length=40,
-        choices=PropertyType
+        choices=PropertyType.choices(),
+        default=PropertyType.APARTMENT.value
     )
     is_active = models.BooleanField(default=True)
     owner = models.ForeignKey(
