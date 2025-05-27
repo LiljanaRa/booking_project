@@ -1,5 +1,7 @@
 from django.contrib import admin
-from apps.properties.models import Property, Address, Review
+from apps.properties.models.property import Property
+from apps.properties.models.address import Address
+from apps.properties.models.review import Review
 
 
 class AddressInline(admin.StackedInline):

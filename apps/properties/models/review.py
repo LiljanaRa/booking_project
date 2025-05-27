@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from apps.properties.models import Property
+from apps.properties.models.property import Property
 from apps.users.models import User
 
 
@@ -30,3 +30,5 @@ class Review(models.Model):
         db_table = 'review'
         unique_together = ('property', 'author')
         ordering = ['-rating', 'created_at']
+        verbose_name = 'Review'
+        verbose_name_plural = 'Reviews'

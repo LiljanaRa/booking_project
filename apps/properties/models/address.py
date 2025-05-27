@@ -1,6 +1,6 @@
 from django.db import models
 
-from apps.properties.models import Property
+from apps.properties.models.property import Property
 
 
 class Address(models.Model):

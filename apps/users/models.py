@@ -28,10 +28,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['email']
 
     def __str__(self):
-        return f"{self.first_name[0].upper()}. {self.last_name}"
+        return f"{self.first_name[:1].upper()}. {self.last_name}"
 
     class Meta:
         db_table = 'user'
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
 
 
 

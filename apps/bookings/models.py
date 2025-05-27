@@ -1,6 +1,6 @@
 from django.db import models
 
-from apps.properties.models import Property
+from apps.properties.models.property import Property
 from apps.users.models import User
 from apps.bookings.choices import BookingStatus
 
@@ -31,3 +31,5 @@ class Booking(models.Model):
     class Meta:
         db_table = 'booking'
         ordering = ['-created_at']
+        verbose_name = 'Booking'
+        verbose_name_plural = 'Bookings'

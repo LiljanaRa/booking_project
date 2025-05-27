@@ -26,7 +26,7 @@ class BookingAdmin(admin.ModelAdmin):
         'tenant__last_name',
     )
     ordering = (
-        '-created_at'
+        '-created_at',
     )
     autocomplete_fields = (
         'property',
