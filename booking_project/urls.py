@@ -16,7 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView
+)
+
+from apps.properties.views.property import (
+    PropertyListCreateView,
+    PropertyDetailUpdateDeleteView,
+    UserPropertiesView
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('properties/', PropertyListCreateView.as_view()),
+    path('properties/<int:pk>/', PropertyDetailUpdateDeleteView.as_view()),
+    path('properties-owner/', UserPropertiesView.as_view()),
+    path('auth-login-jwt/', TokenObtainPairView.as_view()),
+    path('token-refresh/', TokenRefreshView.as_view()),
 ]

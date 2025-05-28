@@ -48,7 +48,7 @@ class UserAdmin(BaseUserAdmin):
                 'role',
                 'password1',
                 'password2')
-        })
+        }),
     )
     list_display = (
         'username',

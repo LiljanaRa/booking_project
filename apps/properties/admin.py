@@ -6,7 +6,7 @@ from apps.properties.models.review import Review
 
 class AddressInline(admin.StackedInline):
     model = Address
-    extra = 0
+    extra = 1
 
 
 @admin.register(Property)
