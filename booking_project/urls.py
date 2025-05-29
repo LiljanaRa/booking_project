@@ -15,23 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView
-)
-
-from apps.properties.views.property import (
-    PropertyListCreateView,
-    PropertyDetailUpdateDeleteView,
-    UserPropertiesView
-)
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('properties/', PropertyListCreateView.as_view()),
-    path('properties/<int:pk>/', PropertyDetailUpdateDeleteView.as_view()),
-    path('properties-owner/', UserPropertiesView.as_view()),
-    path('auth-login-jwt/', TokenObtainPairView.as_view()),
-    path('token-refresh/', TokenRefreshView.as_view()),
+    path('properties/', include('apps.properties.urls')),
+    path('users/', include('apps.users.urls')),
+    #path('bookings/', include('apps.bookings.urls'))
 ]
