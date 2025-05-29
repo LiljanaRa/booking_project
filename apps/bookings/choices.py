@@ -11,6 +11,6 @@ class BookingStatus(str, Enum):
 
     @classmethod
     def choices(cls):
-        return [(status.name, status.value) for status in cls]
+        return [(status.value, status.value) for status in cls]
 
 

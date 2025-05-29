@@ -6,4 +6,4 @@ class UserType(str, Enum):
 
     @classmethod
     def choices(cls):
-        return [(role.name, role.value) for role in cls]
+        return [(role.value, role.value) for role in cls]

@@ -1,6 +1,10 @@
 from rest_framework import serializers
 
 from apps.bookings.models import Booking
+from apps.bookings.choices import BookingStatus
+from apps.users.choices import UserType
+from datetime import timedelta, datetime
+from django.utils import timezone
 
 
 class BookingSerializer(serializers.ModelSerializer):
@@ -37,9 +41,15 @@ class BookingCreateUpdateSerializer(serializers.ModelSerializer):
             'status']
 
     def validate(self, attrs):
+        attrs.pop('tenant', None)
+        attrs.pop('status', None)
+
         start = attrs.get('start_date')
         end = attrs.get('end_date')
         property = attrs.get('property')
+
+        if start and start < timezone.now():
+            raise serializers.ValidationError('Start date cannot be in the past.')
 
         if start and end and end <= start:
             raise serializers.ValidationError('The end date must be after start date.')
@@ -60,4 +70,31 @@ class BookingCreateUpdateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data['tenant'] = self.context['request'].user
+        validated_data['status'] = BookingStatus.PENDING.value
         return super().create(validated_data)
+
+
+class BookingStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = ['status']
+
+    def validate_status(self, value):
+        user = self.context['request'].user
+        booking = self.instance
+
+        if user.role == UserType.TENANT:
+            if value != BookingStatus.CANCELLED.value:
+                raise serializers.ValidationError("Tenants can only cancel bookings.")
+            if (booking.start_date - timezone.now().date()) < timedelta(days=7):
+                raise serializers.ValidationError("Cannot cancel less than 7 days before start date.")
+
+        elif user.role == UserType.LANDLORD:
+            if value not in [BookingStatus.CONFIRMED.value, BookingStatus.DECLINED.value]:
+                raise serializers.ValidationError("Landlords can only confirm or decline bookings.")
+
+        else:
+            raise serializers.ValidationError("You are not allowed to change status.")
+
+        return value
+

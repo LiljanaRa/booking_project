@@ -16,5 +16,5 @@ class PropertyType(str, Enum):
 
     @classmethod
     def choices(cls):
-        return [(type.name, type.value) for type in cls]
+        return [(type.value, type.value) for type in cls]
 
