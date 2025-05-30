@@ -3,8 +3,11 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView
 )
-from rest_framework.permissions import SAFE_METHODS
-from rest_framework import filters
+from rest_framework.views import APIView
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework.exceptions import PermissionDenied, NotFound
+from rest_framework.response import Response
+from rest_framework import filters, status
 from django_filters.rest_framework import DjangoFilterBackend
 
 from apps.properties.models.property import Property
@@ -16,6 +19,7 @@ from apps.properties.serializers.property import (
 
 
 class PropertyListCreateView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -42,6 +46,7 @@ class PropertyListCreateView(ListCreateAPIView):
 
 
 class PropertyDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -58,6 +63,7 @@ class PropertyDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
 
 
 class UserPropertiesView(ListAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = PropertySerializer
     filter_backends = [
         DjangoFilterBackend,
@@ -75,3 +81,24 @@ class UserPropertiesView(ListAPIView):
         ).select_related('address'
                          ).prefetch_related('reviews')
         return queryset
+
+
+class SwitchPropertyActiveStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            property = Property.objects.get(pk=pk)
+        except Property.DoesNotExist:
+            raise NotFound('Property not found.')
+
+        if property.owner != request.user:
+            raise PermissionDenied('You can only update your own listings.')
+
+        property.is_active = not property.is_active
+        property.save()
+
+        return Response(
+            {"id": property.id, 'is_active': property.is_active},
+            status=status.HTTP_200_OK
+        )

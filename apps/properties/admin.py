@@ -54,6 +54,7 @@ class ReviewAdmin(admin.ModelAdmin):
     list_display = (
         'property',
         'author',
+        'comment',
         'rating',
         'created_at'
     )

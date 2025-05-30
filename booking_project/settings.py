@@ -43,7 +43,7 @@ INSTALLED_APPS = [
 
     # 3-rd party
     'rest_framework',
-    'rest_framework.authtoken',
+    #'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'django_filters',
 
@@ -126,13 +126,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.CursorPagination', 'PAGE_SIZE': 5,
+    'DEFAULT_PAGINATION_CLASS': 'apps.properties.paginators.CustomCursorPagination',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated'
     ],
     'DATETIME_FORMAT': "%Y-%m-%d %H:%M"
 }
