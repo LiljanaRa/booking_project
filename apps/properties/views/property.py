@@ -4,7 +4,7 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView
 )
 from rest_framework.views import APIView
-from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 from rest_framework import filters, status
@@ -19,7 +19,6 @@ from apps.properties.serializers.property import (
 
 
 class PropertyListCreateView(ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -46,7 +45,6 @@ class PropertyListCreateView(ListCreateAPIView):
 
 
 class PropertyDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -63,7 +61,6 @@ class PropertyDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
 
 
 class UserPropertiesView(ListAPIView):
-    permission_classes = [IsAuthenticated]
     serializer_class = PropertySerializer
     filter_backends = [
         DjangoFilterBackend,
@@ -84,7 +81,6 @@ class UserPropertiesView(ListAPIView):
 
 
 class SwitchPropertyActiveStatusView(APIView):
-    permission_classes = [IsAuthenticated]
 
     def patch(self, request, pk):
         try:

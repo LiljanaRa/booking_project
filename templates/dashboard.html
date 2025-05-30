@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2>Welcome to your dashboard, {{ user.username }}!</h2>
+
+{% if user.role == "Landlord" %}
+    <h3>Your properties:</h3>
+    {% if properties %}
+        <ul>
+            {% for property in properties %}
+                <li>{{ property.title }} - {{ property.address.city }} - {{ property.price_per_night }} €</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have no properties yet.</p>
+    {% endif %}
+{% elif user.role == "Tenant" %}
+    <h3>Your bookings:</h3>
+    {% if bookings %}
+        <ul>
+            {% for booking in bookings %}
+                <li>{{ booking.property.title }} from {{ booking.start_date.date }} to {{ booking.end_date.date }} - {{ booking.status }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have no bookings yet.</p>
+    {% endif %}
+{% endif %}
+{% endblock %}

@@ -43,8 +43,8 @@ INSTALLED_APPS = [
 
     # 3-rd party
     'rest_framework',
-    #'rest_framework.authtoken',
     'rest_framework_simplejwt',
+    'rest_framework.authtoken',
     'django_filters',
 
     # local
@@ -70,7 +70,7 @@ AUTH_USER_MODEL = 'users.User'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -125,12 +125,13 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated'],
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'apps.properties.paginators.CustomCursorPagination',
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
     'DATETIME_FORMAT': "%Y-%m-%d %H:%M"
 }
 
@@ -145,6 +146,10 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_OBTAIN_SERIALIZER': 'apps.users.serializers.UserAuthJWTSerializer'
 }
+
+LOGIN_REDIRECT_URL = '/dashboard/'
+
+LOGOUT_REDIRECT_URL = '/users/login/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/

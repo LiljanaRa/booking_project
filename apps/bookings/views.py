@@ -4,7 +4,7 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
     UpdateAPIView
 )
-from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework.exceptions import PermissionDenied
 
 from apps.bookings.models import Booking
@@ -17,7 +17,6 @@ from apps.bookings.serializers import (
 
 
 class BookingListCreateView(ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -36,7 +35,6 @@ class BookingListCreateView(ListCreateAPIView):
 
 
 class BookingDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -54,7 +52,6 @@ class BookingDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
 
 
 class LandlordBookingListView(ListAPIView):
-    permission_classes = [IsAuthenticated]
     serializer_class = BookingSerializer
 
     def get_queryset(self):
@@ -69,7 +66,6 @@ class LandlordBookingListView(ListAPIView):
 
 
 class BookingStatusUpdateView(UpdateAPIView):
-    permission_classes = [IsAuthenticated]
     serializer_class = BookingStatusUpdateSerializer
 
     def get_queryset(self):
