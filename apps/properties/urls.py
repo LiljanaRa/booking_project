@@ -6,7 +6,8 @@ from apps.properties.views.property import (
     UserPropertiesView,
     SwitchPropertyActiveStatusView,
     PropertyBookingsView,
-    PropertyUnavailableDatesView
+    PropertyUnavailableDatesView,
+    PopularPropertyListView
 )
 from apps.properties.views.review import (
     ReviewCreateView,
@@ -24,4 +25,5 @@ urlpatterns = [
     path('<int:property_id>/reviews/', PropertyReviewListView.as_view()),
     path('<int:property_id>/bookings/', PropertyBookingsView.as_view()),
     path('<int:property_id>/unavailable-dates/', PropertyUnavailableDatesView.as_view()),
+    path('popular/', PopularPropertyListView.as_view()),
 ]

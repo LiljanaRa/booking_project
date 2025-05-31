@@ -12,6 +12,9 @@ class PropertySerializer(serializers.ModelSerializer):
     owner = serializers.StringRelatedField(read_only=True)
     address = AddressSerializer(read_only=True)
     average_rating = serializers.FloatField(read_only=True)
+    count_reviews = serializers.IntegerField(read_only=True)
+    views = serializers.IntegerField(read_only=True)
+    viewed_by = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Property
@@ -26,6 +29,9 @@ class PropertySerializer(serializers.ModelSerializer):
             'owner',
             'address',
             'average_rating',
+            'count_reviews',
+            'views',
+            'viewed_by',
             'created_at'
         ]
 

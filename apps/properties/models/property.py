@@ -23,6 +23,7 @@ class Property(models.Model):
         on_delete=models.PROTECT,
         related_name='properties'
     )
+    views = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

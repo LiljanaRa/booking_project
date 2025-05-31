@@ -9,10 +9,13 @@ from rest_framework.permissions import SAFE_METHODS
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 from rest_framework import filters, status
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Avg
+from django.db import models
+from django.db.models import Avg, Count
 
 from apps.properties.models.property import Property
+from apps.properties.models.view_history import PropertyViewHistory
 from apps.properties.filters import PropertyFilter
 from apps.properties.permissions import IsOwnerOrReadOnly
 from apps.properties.serializers.property import (
@@ -33,12 +36,22 @@ class PropertyListCreateView(ListCreateAPIView):
     ]
     filterset_class = PropertyFilter
     search_fields = ['title', 'description']
-    ordering_fields = ['average_rating', 'price_per_night']
+    ordering_fields = [
+        'average_rating',
+        'count_reviews',
+        'views',
+        'viewed_by',
+        'price_per_night'
+    ]
     ordering = ['-created_at']
 
     def get_queryset(self):
         queryset = Property.objects.annotate(
-            average_rating=Avg('reviews__rating')
+            average_rating=Avg('reviews__rating'),
+            count_reviews=Count('reviews'),
+            viewed_by=Count(
+                'view_history',
+                distinct=True)
         ).select_related(
             'owner', 'address'
         ).prefetch_related('reviews').filter(is_active=True)
@@ -70,6 +83,21 @@ class PropertyDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
             return PropertySerializer
         return PropertyCreateUpdateSerializer
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.views = models.F('views') + 1
+        instance.save(update_fields=['views'])
+        instance.refresh_from_db(fields=['views'])
+
+        if request.user.is_authenticated:
+            PropertyViewHistory.objects.update_or_create(
+                user=request.user,
+                property=instance,
+                defaults={'viewed_at': timezone.now()}
+            )
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
 
 class UserPropertiesView(ListAPIView):
     serializer_class = PropertySerializer
@@ -80,12 +108,22 @@ class UserPropertiesView(ListAPIView):
     ]
     filterset_class = PropertyFilter
     search_fields = ['title', 'description']
-    ordering_fields = ['price_per_night', 'created_at']
+    ordering_fields = [
+        'average_rating',
+        'count_reviews',
+        'views',
+        'viewed_by',
+        'price_per_night'
+    ]
     ordering = ['-created_at']
 
     def get_queryset(self):
         queryset = Property.objects.annotate(
-            average_rating=Avg('reviews__rating')
+            average_rating=Avg('reviews__rating'),
+            count_reviews=Count('reviews'),
+            viewed_by=Count(
+                'view_history',
+                distinct=True)
         ).filter(
             owner=self.request.user
         ).select_related('address'
@@ -141,3 +179,22 @@ class PropertyUnavailableDatesView(APIView):
 
         serializer = PropertyUnavailableDatesSerializer(bookings, many=True)
         return Response(serializer.data)
+
+
+class PopularPropertyListView(ListAPIView):
+    serializer_class = PropertySerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        queryset = Property.objects.annotate(
+            viewed_by=Count(
+                'view_history',
+                distinct=True)
+        ).filter(
+            is_active=True
+        ).order_by(
+            '-viewed_by',
+            '-created_at'
+            )
+        print(queryset.query)
+        return queryset
