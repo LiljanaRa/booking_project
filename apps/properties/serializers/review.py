@@ -1,8 +1,10 @@
 from rest_framework import serializers
 
 from apps.properties.models.review import Review
+from apps.properties.serializers.property import PropertyShortSerializer
 from apps.bookings.models import Booking
 from apps.bookings.choices import BookingStatus
+from apps.users.serializers import UserShortSerializer
 
 
 class ReviewCreateSerializer(serializers.ModelSerializer):
@@ -42,3 +44,32 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         validated_data['author'] = user
         return super().create(validated_data)
+
+
+class ReviewUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = [
+            'rating',
+            'comment',
+        ]
+        read_only_fields = [
+            'property',
+            'author',
+            'created_at'
+        ]
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    property = PropertyShortSerializer(read_only=True)
+    author = UserShortSerializer(read_only=True)
+
+    class Meta:
+        model = Review
+        fields = [
+            'property',
+            'rating',
+            'comment',
+            'author',
+            'created_at'
+        ]

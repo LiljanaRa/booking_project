@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from apps.users.models import User
 
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -30,3 +31,12 @@ class UserAuthJWTSerializer(TokenObtainPairSerializer):
         data['username'] = user.username
         data['role'] = user.role
         return data
+
+
+class UserShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'username'
+        ]

@@ -4,9 +4,15 @@ from apps.properties.views.property import (
     PropertyListCreateView,
     PropertyDetailUpdateDeleteView,
     UserPropertiesView,
-    SwitchPropertyActiveStatusView
+    SwitchPropertyActiveStatusView,
+    PropertyBookingsView,
+    PropertyUnavailableDatesView
 )
-from apps.properties.views.review import ReviewCreateView
+from apps.properties.views.review import (
+    ReviewCreateView,
+    ReviewUpdateDeleteView,
+    PropertyReviewListView,
+)
 
 urlpatterns = [
     path('', PropertyListCreateView.as_view()),
@@ -14,4 +20,8 @@ urlpatterns = [
     path('<int:pk>/switch-active/', SwitchPropertyActiveStatusView.as_view()),
     path('owner/', UserPropertiesView.as_view()),
     path('reviews/', ReviewCreateView.as_view()),
+    path('reviews/<int:pk>/', ReviewUpdateDeleteView.as_view()),
+    path('<int:property_id>/reviews/', PropertyReviewListView.as_view()),
+    path('<int:property_id>/bookings/', PropertyBookingsView.as_view()),
+    path('<int:property_id>/unavailable-dates/', PropertyUnavailableDatesView.as_view()),
 ]

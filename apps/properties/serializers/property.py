@@ -11,6 +11,7 @@ from apps.properties.models.address import Address
 class PropertySerializer(serializers.ModelSerializer):
     owner = serializers.StringRelatedField(read_only=True)
     address = AddressSerializer(read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
 
     class Meta:
         model = Property
@@ -24,6 +25,7 @@ class PropertySerializer(serializers.ModelSerializer):
             'is_active',
             'owner',
             'address',
+            'average_rating',
             'created_at'
         ]
 
@@ -57,3 +59,17 @@ class PropertyCreateUpdateSerializer(serializers.ModelSerializer):
                 setattr(address, attr, value)
             address.save()
         return instance
+
+
+class PropertyShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Property
+        fields = [
+            'id',
+            'title'
+        ]
+
+
+class PropertyUnavailableDatesSerializer(serializers.Serializer):
+    start_date = serializers.DateTimeField(format="%Y-%m-%d")
+    end_date = serializers.DateTimeField(format="%Y-%m-%d")

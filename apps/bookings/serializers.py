@@ -1,15 +1,16 @@
 from rest_framework import serializers
+from django.utils import timezone
+from datetime import timedelta
 
 from apps.bookings.models import Booking
 from apps.bookings.choices import BookingStatus
 from apps.users.choices import UserType
-from datetime import timedelta, datetime
-from django.utils import timezone
+from apps.properties.serializers.property import PropertyShortSerializer
 
 
 class BookingSerializer(serializers.ModelSerializer):
     tenant = serializers.StringRelatedField(read_only=True)
-    property = serializers.StringRelatedField(read_only=True)
+    property = PropertyShortSerializer(read_only=True)
 
     class Meta:
         model = Booking
@@ -97,4 +98,3 @@ class BookingStatusUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("You are not allowed to change status.")
 
         return value
-
