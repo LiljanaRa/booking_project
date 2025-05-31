@@ -4,8 +4,11 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
     get_object_or_404
 )
+from rest_framework.permissions import (
+    SAFE_METHODS,
+    IsAuthenticatedOrReadOnly
+)
 from rest_framework.views import APIView
-from rest_framework.permissions import SAFE_METHODS
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 from rest_framework import filters, status
@@ -16,6 +19,7 @@ from django.db.models import Avg, Count
 
 from apps.properties.models.property import Property
 from apps.properties.models.view_history import PropertyViewHistory
+from apps.properties.models.search_history import SearchHistory
 from apps.properties.filters import PropertyFilter
 from apps.properties.permissions import IsOwnerOrReadOnly
 from apps.properties.serializers.property import (
@@ -29,6 +33,7 @@ from apps.bookings.choices import BookingStatus
 
 
 class PropertyListCreateView(ListCreateAPIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -55,6 +60,16 @@ class PropertyListCreateView(ListCreateAPIView):
         ).select_related(
             'owner', 'address'
         ).prefetch_related('reviews').filter(is_active=True)
+
+        keyword = self.request.query_params.get('search')
+        if keyword:
+            SearchHistory.objects.create(
+                user=self.request.user
+                if self.request.user.is_authenticated
+                else None,
+                keyword=keyword
+            )
+
         return queryset
 
     def get_serializer_class(self):
@@ -182,6 +197,7 @@ class PropertyUnavailableDatesView(APIView):
 
 
 class PopularPropertyListView(ListAPIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = PropertySerializer
     pagination_class = None
 
@@ -195,6 +211,18 @@ class PopularPropertyListView(ListAPIView):
         ).order_by(
             '-viewed_by',
             '-created_at'
-            )
+        )
         print(queryset.query)
         return queryset
+
+
+class PopularSearchKeywordsView(APIView):
+
+    def get(self, request):
+        keywords = (
+            SearchHistory.objects.values(
+                'keyword'
+            ).annotate(count=Count('id')
+                       ).order_by('-count')[:10]
+        )
+        return Response(keywords)
