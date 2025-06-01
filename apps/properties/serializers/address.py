@@ -12,6 +12,7 @@ class AddressSerializer(serializers.ModelSerializer):
             'region',
             'city',
             'street',
+            'house_number',
             'zip_code'
         ]
 

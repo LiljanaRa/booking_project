@@ -8,6 +8,7 @@ class Address(models.Model):
     region = models.CharField(max_length=70, null=True, blank=True)
     city = models.CharField(max_length=50)
     street = models.CharField(max_length=70)
+    house_number = models.CharField(max_length=6)
     zip_code = models.CharField(max_length=15)
     rent_property = models.OneToOneField(
         Property,

@@ -158,6 +158,9 @@ class SwitchPropertyActiveStatusView(APIView):
         except Property.DoesNotExist:
             raise NotFound('Property not found.')
 
+        if request.user.role != UserType.LANDLORD.value:
+            raise PermissionDenied('Only landlords can access this endpoint.')
+
         if rent_property.owner != request.user:
             raise PermissionDenied('You can only update your own listings.')
 

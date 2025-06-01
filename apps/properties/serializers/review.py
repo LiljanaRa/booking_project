@@ -5,6 +5,7 @@ from apps.properties.serializers.rent_property import PropertyShortSerializer
 from apps.bookings.models import Booking
 from apps.bookings.choices import BookingStatus
 from apps.users.serializers import UserShortSerializer
+from apps.users.choices import UserType
 
 
 class ReviewCreateSerializer(serializers.ModelSerializer):
@@ -18,6 +19,10 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
 
     def validate_rent_property(self, value):
         user = self.context['request'].user
+
+        if user.role != UserType.TENANT.value:
+            raise serializers.ValidationError('Only tenants can access this endpoint.')
+
         booking = Booking.objects.filter(
             tenant=user,
             rent_property=value,

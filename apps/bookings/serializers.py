@@ -45,9 +45,13 @@ class BookingCreateUpdateSerializer(serializers.ModelSerializer):
         attrs.pop('tenant', None)
         attrs.pop('status', None)
 
+        user = self.context['request'].user
         start = attrs.get('start_date')
         end = attrs.get('end_date')
         rent_property = attrs.get('rent_property')
+
+        if user.role != UserType.TENANT.value:
+            raise serializers.ValidationError('Only tenants can access this endpoint.')
 
         if start and start < timezone.now():
             raise serializers.ValidationError('Start date cannot be in the past.')
@@ -73,6 +77,21 @@ class BookingCreateUpdateSerializer(serializers.ModelSerializer):
         validated_data['tenant'] = self.context['request'].user
         validated_data['status'] = BookingStatus.PENDING.value
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        user = self.context['request'].user
+
+        if instance.tenant != user:
+            raise serializers.ValidationError('You can only update your own bookings.')
+
+        if instance.status != BookingStatus.PENDING.value:
+            raise serializers.ValidationError('Only pending bookings can be modified.')
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
 
 
 class BookingStatusUpdateSerializer(serializers.ModelSerializer):

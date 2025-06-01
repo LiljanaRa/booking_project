@@ -3,8 +3,10 @@ from rest_framework.generics import (
     CreateAPIView,
     RetrieveUpdateDestroyAPIView
 )
+from rest_framework import filters
+from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
-from django_filters import filters
+
 
 from apps.properties.permissions import IsReviewAuthorOrSuperuser
 from apps.properties.filters import ReviewFilter
@@ -33,6 +35,7 @@ class ReviewUpdateDeleteView(RetrieveUpdateDestroyAPIView):
 
 
 class PropertyReviewListView(ListAPIView):
+    permission_classes = [AllowAny]
     serializer_class = ReviewSerializer
     filter_backends = [
         DjangoFilterBackend,
