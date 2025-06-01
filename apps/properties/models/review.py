@@ -1,12 +1,12 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from apps.properties.models.property import Property
+from apps.properties.models.rent_property import Property
 from apps.users.models import User
 
 
 class Review(models.Model):
-    property = models.ForeignKey(
+    rent_property = models.ForeignKey(
         Property,
         on_delete=models.CASCADE,
         related_name='reviews'
@@ -23,12 +23,12 @@ class Review(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.author.email} - {self.property.title} ({self.rating}/5)"
+        return f"{self.author.email} - {self.rent_property.title} ({self.rating}/5)"
 
 
     class Meta:
         db_table = 'review'
-        unique_together = ('property', 'author')
+        unique_together = ('rent_property', 'author')
         ordering = ['-rating', 'created_at']
         verbose_name = 'Review'
         verbose_name_plural = 'Reviews'

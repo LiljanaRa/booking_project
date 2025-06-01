@@ -4,9 +4,9 @@ from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from apps.users.serializers import UserRegistrationSerializer
-from apps.properties.models.property import Property
-from apps.bookings.models import Booking
 from apps.users.choices import UserType
+from apps.properties.models.rent_property import Property
+from apps.bookings.models import Booking
 
 
 class UserRegisterView(CreateAPIView):

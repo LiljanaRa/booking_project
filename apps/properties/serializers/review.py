@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from apps.properties.models.review import Review
-from apps.properties.serializers.property import PropertyShortSerializer
+from apps.properties.serializers.rent_property import PropertyShortSerializer
 from apps.bookings.models import Booking
 from apps.bookings.choices import BookingStatus
 from apps.users.serializers import UserShortSerializer
@@ -11,16 +11,16 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = [
-            'property',
+            'rent_property',
             'rating',
             'comment',
         ]
 
-    def validate_property(self, value):
+    def validate_rent_property(self, value):
         user = self.context['request'].user
         booking = Booking.objects.filter(
             tenant=user,
-            property=value,
+            rent_property=value,
             status=BookingStatus.COMPLETED.value
         ).exists()
 
@@ -30,10 +30,10 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         user = self.context['request'].user
-        instance = attrs['property']
+        instance = attrs['rent_property']
         review = Review.objects.filter(
             author=user,
-            property=instance
+            rent_property=instance
         ).exists()
 
         if review:
@@ -54,20 +54,20 @@ class ReviewUpdateSerializer(serializers.ModelSerializer):
             'comment',
         ]
         read_only_fields = [
-            'property',
+            'rent_property',
             'author',
             'created_at'
         ]
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    property = PropertyShortSerializer(read_only=True)
+    rent_property = PropertyShortSerializer(read_only=True)
     author = UserShortSerializer(read_only=True)
 
     class Meta:
         model = Review
         fields = [
-            'property',
+            'rent_property',
             'rating',
             'comment',
             'author',

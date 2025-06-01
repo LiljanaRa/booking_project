@@ -1,6 +1,7 @@
 import django_filters
 
-from apps.properties.models.property import Property
+from apps.properties.models.rent_property import Property
+from apps.properties.models.review import Review
 
 
 class PropertyFilter(django_filters.FilterSet):
@@ -9,8 +10,29 @@ class PropertyFilter(django_filters.FilterSet):
     city = django_filters.CharFilter(field_name='address__city', lookup_expr='icontains')
     room_min = django_filters.NumberFilter(field_name='rooms', lookup_expr='gte')
     room_max = django_filters.NumberFilter(field_name='rooms', lookup_expr='lte')
-    property_type = django_filters.CharFilter(field_name='property_type')
+    rent_property_type = django_filters.CharFilter(field_name='rent_property_type')
 
     class Meta:
         model = Property
-        fields = []
+        fields = [
+            'min_price',
+            'max_price',
+            'city',
+            'room_min',
+            'room_max',
+            'rent_property_type'
+        ]
+
+
+class ReviewFilter(django_filters.FilterSet):
+    rating = django_filters.NumberFilter(field_name='rating')
+    rent_property = django_filters.NumberFilter(field_name='rent_property_id')
+    created_at = django_filters.DateFromToRangeFilter()
+
+    class Meta:
+        model = Review
+        fields = [
+            'rating',
+            'rent_property',
+            'created_at'
+        ]

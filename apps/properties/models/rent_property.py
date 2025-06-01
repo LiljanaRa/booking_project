@@ -14,7 +14,7 @@ class Property(models.Model):
         decimal_places=2
     )
     rooms = models.PositiveSmallIntegerField()
-    property_type = models.CharField(
+    rent_property_type = models.CharField(
         max_length=40,
         choices=PropertyType.choices(),
         default=PropertyType.APARTMENT.value

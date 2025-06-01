@@ -1,12 +1,12 @@
 from django.db import models
 
-from apps.properties.models.property import Property
+from apps.properties.models.rent_property import Property
 from apps.users.models import User
 from apps.bookings.choices import BookingStatus
 
 
 class Booking(models.Model):
-    property = models.ForeignKey(
+    rent_property = models.ForeignKey(
         Property,
         on_delete=models.CASCADE,
         related_name='bookings'
@@ -26,7 +26,7 @@ class Booking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.tenant.email} - {self.property.title} ({self.start_date.date()} - {self.end_date.date()})"
+        return f"{self.tenant.email} - {self.rent_property.title} ({self.start_date.date()} - {self.end_date.date()})"
 
     class Meta:
         db_table = 'booking'

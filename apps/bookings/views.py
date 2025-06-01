@@ -6,9 +6,12 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.exceptions import PermissionDenied
+from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 
-from apps.bookings.models import Booking
 from apps.users.choices import UserType
+from apps.bookings.models import Booking
+from apps.bookings.filters import BookingFilter
 from apps.bookings.serializers import (
     BookingSerializer,
     BookingCreateUpdateSerializer,
@@ -17,13 +20,28 @@ from apps.bookings.serializers import (
 
 
 class BookingListCreateView(ListCreateAPIView):
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter
+    ]
+    filterset_class = BookingFilter
+    search_fields = [
+        'rent_property__title',
+        'status'
+    ]
+    ordering_fields = [
+        'status',
+        'start_date',
+        'created_at'
+    ]
 
     def get_queryset(self):
         user = self.request.user
 
         if user.role == UserType.TENANT:
             queryset = Booking.objects.select_related(
-                'property', 'tenant'
+                'rent_property', 'tenant'
             ).filter(tenant=user)
             return queryset
         raise PermissionDenied('Only tenants can access this endpoint.')
@@ -40,7 +58,7 @@ class BookingDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
         user = self.request.user
         if user.role == UserType.TENANT.value:
             queryset = Booking.objects.select_related(
-                'property', 'tenant'
+                'rent_property', 'tenant'
             ).filter(tenant=user)
             return queryset
         raise PermissionDenied('Only tenants can access this endpoint.')
@@ -53,14 +71,29 @@ class BookingDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
 
 class LandlordBookingListView(ListAPIView):
     serializer_class = BookingSerializer
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter
+    ]
+    filterset_class = BookingFilter
+    search_fields = [
+        'rent_property__title',
+        'status'
+    ]
+    ordering_fields = [
+        'status',
+        'start_date',
+        'created_at'
+    ]
 
     def get_queryset(self):
         user = self.request.user
 
         if user.role == UserType.LANDLORD:
             queryset = Booking.objects.select_related(
-                'property', 'tenant'
-            ).filter(property__owner=user)
+                'rent_property', 'tenant'
+            ).filter(rent_property__owner=user)
             return queryset
         raise PermissionDenied('Only landlords can access this endpoint.')
 
@@ -73,13 +106,13 @@ class BookingStatusUpdateView(UpdateAPIView):
 
         if user.role == UserType.TENANT.value:
             return Booking.objects.select_related(
-                'property', 'tenant'
+                'rent_property', 'tenant'
             ).filter(tenant=user)
 
         if user.role == UserType.LANDLORD.value:
             return Booking.objects.select_related(
-                'property', 'tenant'
-            ).filter(property__owner=user)
+                'rent_property', 'tenant'
+            ).filter(rent_property__owner=user)
 
         return Booking.objects.none()
 
@@ -90,7 +123,7 @@ class BookingStatusUpdateView(UpdateAPIView):
         if user.role == UserType.TENANT.value and booking.tenant != user:
             raise PermissionDenied('You are not allowed to update this booking.')
 
-        if user.role == UserType.LANDLORD.value and booking.property.owner != user:
+        if user.role == UserType.LANDLORD.value and booking.rent_property.owner != user:
             raise PermissionDenied('You do not own this property.')
 
         return booking

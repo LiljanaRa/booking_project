@@ -19,4 +19,4 @@ class AddressSerializer(serializers.ModelSerializer):
 class AddressCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        exclude = ('property',)
+        exclude = ('rent_property',)

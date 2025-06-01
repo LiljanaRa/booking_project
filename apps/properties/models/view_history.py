@@ -1,14 +1,14 @@
 from django.db import models
 
 from apps.users.models import User
-from apps.properties.models.property import Property
+from apps.properties.models.rent_property import Property
 
 
 class PropertyViewHistory(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE)
-    property = models.ForeignKey(
+    rent_property = models.ForeignKey(
         Property,
         on_delete=models.CASCADE,
         related_name='view_history'
@@ -17,7 +17,7 @@ class PropertyViewHistory(models.Model):
 
     class Meta:
         db_table = 'view_history'
-        unique_together = ('user', 'property')
+        unique_together = ('user', 'rent_property')
         ordering = ['-viewed_at']
         verbose_name = 'View history'
         verbose_name_plural = 'View histories'

@@ -5,18 +5,18 @@ from datetime import timedelta
 from apps.bookings.models import Booking
 from apps.bookings.choices import BookingStatus
 from apps.users.choices import UserType
-from apps.properties.serializers.property import PropertyShortSerializer
+from apps.properties.serializers.rent_property import PropertyShortSerializer
 
 
 class BookingSerializer(serializers.ModelSerializer):
     tenant = serializers.StringRelatedField(read_only=True)
-    property = PropertyShortSerializer(read_only=True)
+    rent_property = PropertyShortSerializer(read_only=True)
 
     class Meta:
         model = Booking
         fields = [
             'id',
-            'property',
+            'rent_property',
             'tenant',
             'start_date',
             'end_date',
@@ -33,7 +33,7 @@ class BookingCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = [
-            'property',
+            'rent_property',
             'start_date',
             'end_date'
         ]
@@ -47,7 +47,7 @@ class BookingCreateUpdateSerializer(serializers.ModelSerializer):
 
         start = attrs.get('start_date')
         end = attrs.get('end_date')
-        property = attrs.get('property')
+        rent_property = attrs.get('rent_property')
 
         if start and start < timezone.now():
             raise serializers.ValidationError('Start date cannot be in the past.')
@@ -55,9 +55,9 @@ class BookingCreateUpdateSerializer(serializers.ModelSerializer):
         if start and end and end <= start:
             raise serializers.ValidationError('The end date must be after start date.')
 
-        if property and start and end:
+        if rent_property and start and end:
             unavailable = Booking.objects.filter(
-                property=property,
+                rent_property=rent_property,
                 end_date__gte=start,
                 start_date__lte=end
             )

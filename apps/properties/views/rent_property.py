@@ -17,12 +17,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db import models
 from django.db.models import Avg, Count
 
-from apps.properties.models.property import Property
+from apps.properties.models.rent_property import Property
 from apps.properties.models.view_history import PropertyViewHistory
 from apps.properties.models.search_history import SearchHistory
 from apps.properties.filters import PropertyFilter
 from apps.properties.permissions import IsOwnerOrReadOnly
-from apps.properties.serializers.property import (
+from apps.properties.serializers.rent_property import (
     PropertySerializer,
     PropertyCreateUpdateSerializer,
     PropertyUnavailableDatesSerializer
@@ -30,6 +30,7 @@ from apps.properties.serializers.property import (
 from apps.bookings.models import Booking
 from apps.bookings.serializers import BookingSerializer
 from apps.bookings.choices import BookingStatus
+from apps.users.choices import UserType
 
 
 class PropertyListCreateView(ListCreateAPIView):
@@ -107,7 +108,7 @@ class PropertyDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
         if request.user.is_authenticated:
             PropertyViewHistory.objects.update_or_create(
                 user=request.user,
-                property=instance,
+                rent_property=instance,
                 defaults={'viewed_at': timezone.now()}
             )
         serializer = self.get_serializer(instance)
@@ -133,6 +134,9 @@ class UserPropertiesView(ListAPIView):
     ordering = ['-created_at']
 
     def get_queryset(self):
+        user = self.request.user
+        if user.role != UserType.LANDLORD.value:
+            raise PermissionDenied('Only landlords can access this endpoint.')
         queryset = Property.objects.annotate(
             average_rating=Avg('reviews__rating'),
             count_reviews=Count('reviews'),
@@ -140,7 +144,7 @@ class UserPropertiesView(ListAPIView):
                 'view_history',
                 distinct=True)
         ).filter(
-            owner=self.request.user
+            owner=user
         ).select_related('address'
                          ).prefetch_related('reviews')
         return queryset
@@ -150,18 +154,18 @@ class SwitchPropertyActiveStatusView(APIView):
 
     def patch(self, request, pk):
         try:
-            property = Property.objects.get(pk=pk)
+            rent_property = Property.objects.get(pk=pk)
         except Property.DoesNotExist:
             raise NotFound('Property not found.')
 
-        if property.owner != request.user:
+        if rent_property.owner != request.user:
             raise PermissionDenied('You can only update your own listings.')
 
-        property.is_active = not property.is_active
-        property.save()
+        rent_property.is_active = not rent_property.is_active
+        rent_property.save()
 
         return Response(
-            {"id": property.id, 'is_active': property.is_active},
+            {"id": rent_property.id, 'is_active': rent_property.is_active},
             status=status.HTTP_200_OK
         )
 
@@ -171,24 +175,24 @@ class PropertyBookingsView(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        property_id = self.kwargs['property_id']
+        rent_property_id = self.kwargs['rent_property_id']
 
-        instance = get_object_or_404(Property, pk=property_id)
+        instance = get_object_or_404(Property, pk=rent_property_id)
 
         if instance.owner != user:
             raise PermissionDenied('You are not allowed to view bookings for this property.')
 
         queryset = Booking.objects.filter(
-            property=instance
+            rent_property=instance
         ).select_related('tenant')
 
         return queryset
 
 
 class PropertyUnavailableDatesView(APIView):
-    def get(self, request, property_id):
+    def get(self, request, rent_property_id):
         bookings = Booking.objects.filter(
-            property_id=property_id,
+            rent_property_id=rent_property_id,
             status=BookingStatus.CONFIRMED.value
         ).values('start_date', 'end_date')
 

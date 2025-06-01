@@ -1,6 +1,6 @@
 from django.db import models
 
-from apps.properties.models.property import Property
+from apps.properties.models.rent_property import Property
 
 
 class Address(models.Model):
@@ -9,7 +9,7 @@ class Address(models.Model):
     city = models.CharField(max_length=50)
     street = models.CharField(max_length=70)
     zip_code = models.CharField(max_length=15)
-    property = models.OneToOneField(
+    rent_property = models.OneToOneField(
         Property,
         on_delete=models.CASCADE,
         related_name='address'

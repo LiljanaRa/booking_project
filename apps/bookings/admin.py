@@ -6,7 +6,7 @@ from apps.bookings.models import Booking
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
     list_display = (
-        'property',
+        'rent_property',
         'tenant',
         'start_date',
         'end_date',
@@ -20,7 +20,7 @@ class BookingAdmin(admin.ModelAdmin):
         'end_date'
     )
     search_fields = (
-        'property__title',
+        'rent_property__title',
         'tenant__email',
         'tenant__first_name',
         'tenant__last_name',
@@ -29,6 +29,6 @@ class BookingAdmin(admin.ModelAdmin):
         '-created_at',
     )
     autocomplete_fields = (
-        'property',
+        'rent_property',
         'tenant'
     )

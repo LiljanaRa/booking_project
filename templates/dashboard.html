@@ -9,8 +9,8 @@
     <h3>Your properties:</h3>
     {% if properties %}
         <ul>
-            {% for property in properties %}
-                <li>{{ property.title }} - {{ property.address.city }} - {{ property.price_per_night }} €</li>
+            {% for rent_property in properties %}
+                <li>{{ rent_property.title }} - {{ rent_property.address.city }} - {{ rent_property.price_per_night }} €</li>
             {% endfor %}
         </ul>
     {% else %}
@@ -21,7 +21,7 @@
     {% if bookings %}
         <ul>
             {% for booking in bookings %}
-                <li>{{ booking.property.title }} from {{ booking.start_date.date }} to {{ booking.end_date.date }} - {{ booking.status }}</li>
+                <li>{{ booking.rent_property.title }} from {{ booking.start_date.date }} to {{ booking.end_date.date }} - {{ booking.status }}</li>
             {% endfor %}
         </ul>
     {% else %}

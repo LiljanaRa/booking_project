@@ -1,5 +1,5 @@
 from django.contrib import admin
-from apps.properties.models.property import Property
+from apps.properties.models.rent_property import Property
 from apps.properties.models.address import Address
 from apps.properties.models.review import Review
 
@@ -15,13 +15,13 @@ class PropertyAdmin(admin.ModelAdmin):
     list_display = (
         'title',
         'owner',
-        'property_type',
+        'rent_property_type',
         'price_per_night',
         'is_active',
         'created_at'
     )
     list_filter = (
-        'property_type',
+        'rent_property_type',
         'is_active'
     )
     search_fields = (
@@ -52,7 +52,7 @@ class AddressAdmin(admin.ModelAdmin):
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     list_display = (
-        'property',
+        'rent_property',
         'author',
         'comment',
         'rating',
@@ -63,7 +63,7 @@ class ReviewAdmin(admin.ModelAdmin):
         'created_at'
     )
     search_fields = (
-        'property__title',
+        'rent_property__title',
         'author__email',
         'comment'
     )

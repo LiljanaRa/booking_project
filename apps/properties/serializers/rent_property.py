@@ -4,7 +4,7 @@ from apps.properties.serializers.address import (
     AddressSerializer,
     AddressCreateUpdateSerializer
 )
-from apps.properties.models.property import Property
+from apps.properties.models.rent_property import Property
 from apps.properties.models.address import Address
 
 
@@ -24,7 +24,7 @@ class PropertySerializer(serializers.ModelSerializer):
             'description',
             'price_per_night',
             'rooms',
-            'property_type',
+            'rent_property_type',
             'is_active',
             'owner',
             'address',
@@ -46,12 +46,12 @@ class PropertyCreateUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         address_data = validated_data.pop('address')
         validated_data.pop('owner', None)
-        property = Property.objects.create(
+        rent_property = Property.objects.create(
             owner=self.context['request'].user,
             **validated_data
         )
-        Address.objects.create(property=property, **address_data)
-        return property
+        Address.objects.create(rent_property=rent_property, **address_data)
+        return rent_property
 
     def update(self, instance, validated_data):
         address_data = validated_data.pop('address', None)
