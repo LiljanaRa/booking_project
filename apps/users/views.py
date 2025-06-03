@@ -1,23 +1,35 @@
-import datetime
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate
 
 from apps.users.serializers import UserRegistrationSerializer
 from apps.users.choices import UserType
+from apps.users.utils import set_jwt_cookies
 from apps.properties.models.rent_property import Property
 from apps.bookings.models import Booking
 
 
 class UserRegisterView(CreateAPIView):
     permission_classes = [AllowAny]
-    serializer_class = UserRegistrationSerializer
+
+    def post(self, request):
+        serializer = UserRegistrationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        response = Response(
+            data=serializer.data,
+            status=status.HTTP_201_CREATED
+        )
+
+        set_jwt_cookies(response, user)
+
+        return response
 
 
 class LogInAPIView(APIView):
@@ -34,31 +46,11 @@ class LogInAPIView(APIView):
         )
 
         if user:
-            refresh_token = RefreshToken.for_user(user)
-            access_token = refresh_token.access_token
-
-            access_expiry = datetime.datetime.fromtimestamp(access_token['exp'], datetime.UTC)
-            refresh_expiry = datetime.datetime.fromtimestamp(refresh_token['exp'], datetime.UTC)
-
-            response = Response(status=status.HTTP_200_OK)
-
-            response.set_cookie(
-                key='access_token',
-                value=str(access_token),
-                httponly=True,
-                secure=False,
-                samesite='Lax',
-                expires=access_expiry
+            response = Response(
+                status=status.HTTP_200_OK
             )
 
-            response.set_cookie(
-                key='refresh_token',
-                value=str(refresh_token),
-                httponly=True,
-                secure=False,
-                samesite='Lax',
-                expires=refresh_expiry
-            )
+            set_jwt_cookies(response=response, user=user)
 
             return response
 
