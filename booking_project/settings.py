@@ -62,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.users.middleware.jwt_helper.JWTAuthenticationMiddleware',
 ]
 
 ROOT_URLCONF = 'booking_project.urls'
@@ -162,7 +163,7 @@ SIMPLE_JWT = {
 
 LOGIN_REDIRECT_URL = '/dashboard/'
 
-LOGOUT_REDIRECT_URL = '/users/login/'
+LOGOUT_REDIRECT_URL = '/api/users/web-login/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
