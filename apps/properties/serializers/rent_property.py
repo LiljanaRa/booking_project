@@ -116,8 +116,3 @@ class PropertyShortSerializer(serializers.ModelSerializer):
             'id',
             'title'
         ]
-
-
-class PropertyUnavailableDatesSerializer(serializers.Serializer):
-    start_date = serializers.DateTimeField(format="%Y-%m-%d")
-    end_date = serializers.DateTimeField(format="%Y-%m-%d")

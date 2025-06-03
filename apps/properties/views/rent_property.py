@@ -17,6 +17,7 @@ from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db import models
 from django.db.models import Avg, Count
+from datetime import timedelta
 
 from apps.properties.models.rent_property import Property
 from apps.properties.models.view_history import PropertyViewHistory
@@ -200,10 +201,18 @@ class PropertyUnavailableDatesView(APIView):
         bookings = Booking.objects.filter(
             rent_property_id=rent_property_id,
             status=BookingStatus.CONFIRMED.value
-        ).values('start_date', 'end_date')
+        )
 
-        serializer = PropertyUnavailableDatesSerializer(bookings, many=True)
-        return Response(serializer.data)
+        unavailable_dates = []
+
+        for booking in bookings:
+            start = booking.start_date
+            end = booking.end_date
+            delta = (end - start).days + 1
+            for i in range(delta):
+                unavailable_dates.append((start + timedelta(days=i)).strftime('%Y-%m-%d'))
+
+        return Response(sorted(set(unavailable_dates)))
 
 
 class PopularPropertyListView(ListAPIView):
