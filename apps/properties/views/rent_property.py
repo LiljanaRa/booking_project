@@ -23,6 +23,7 @@ from apps.properties.models.rent_property import Property
 from apps.properties.models.view_history import PropertyViewHistory
 from apps.properties.models.search_history import SearchHistory
 from apps.properties.filters import PropertyFilter
+from apps.properties.db_functions import Round
 from apps.properties.permissions import IsOwnerOrReadOnly
 from apps.properties.serializers.rent_property import (
     PropertySerializer,
@@ -54,7 +55,7 @@ class PropertyListCreateView(ListCreateAPIView):
 
     def get_queryset(self):
         queryset = Property.objects.annotate(
-            average_rating=Avg('reviews__rating'),
+            average_rating=Round(Avg('reviews__rating'), 1),
             count_reviews=Count('reviews'),
             viewed_by=Count(
                 'view_history',
@@ -88,7 +89,7 @@ class PropertyDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         queryset = Property.objects.annotate(
-            average_rating=Avg('reviews__rating')
+            average_rating=Round(Avg('reviews__rating'), 1)
         ).select_related(
             'owner', 'address'
         ).prefetch_related('reviews').filter(
@@ -139,7 +140,7 @@ class UserPropertiesView(ListAPIView):
         if user.role != UserType.LANDLORD.value:
             raise PermissionDenied('Only landlords can access this endpoint.')
         queryset = Property.objects.annotate(
-            average_rating=Avg('reviews__rating'),
+            average_rating=Round(Avg('reviews__rating'), 1),
             count_reviews=Count('reviews'),
             viewed_by=Count(
                 'view_history',
@@ -221,6 +222,7 @@ class PopularPropertyListView(ListAPIView):
 
     def get_queryset(self):
         queryset = Property.objects.annotate(
+            average_rating=Round(Avg('reviews__rating'), 1),
             viewed_by=Count(
                 'view_history',
                 distinct=True)
@@ -230,7 +232,6 @@ class PopularPropertyListView(ListAPIView):
             '-viewed_by',
             '-created_at'
         )
-        print(queryset.query)
         return queryset
 
 
