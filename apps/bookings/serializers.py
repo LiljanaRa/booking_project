@@ -56,6 +56,9 @@ class BookingCreateUpdateSerializer(serializers.ModelSerializer):
         if start and start < timezone.now():
             raise serializers.ValidationError('Start date cannot be in the past.')
 
+        if start and start > timezone.now() + timedelta(days=3*365):
+            raise serializers.ValidationError('You cannot book a date more than 3 years in the future.')
+
         if start and end and end <= start:
             raise serializers.ValidationError('The end date must be after start date.')
 
