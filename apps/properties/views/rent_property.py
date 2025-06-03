@@ -26,8 +26,7 @@ from apps.properties.filters import PropertyFilter
 from apps.properties.permissions import IsOwnerOrReadOnly
 from apps.properties.serializers.rent_property import (
     PropertySerializer,
-    PropertyCreateUpdateSerializer,
-    PropertyUnavailableDatesSerializer
+    PropertyCreateUpdateSerializer
 )
 from apps.bookings.models import Booking
 from apps.bookings.serializers import BookingSerializer
