@@ -6,7 +6,8 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import (
     SAFE_METHODS,
-    IsAuthenticatedOrReadOnly
+    IsAuthenticatedOrReadOnly,
+    AllowAny
 )
 from rest_framework.views import APIView
 from rest_framework.exceptions import PermissionDenied, NotFound
@@ -193,6 +194,8 @@ class PropertyBookingsView(ListAPIView):
 
 
 class PropertyUnavailableDatesView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, rent_property_id):
         bookings = Booking.objects.filter(
             rent_property_id=rent_property_id,

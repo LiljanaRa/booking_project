@@ -2,7 +2,8 @@ from rest_framework.generics import (
     ListAPIView,
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
-    UpdateAPIView
+    UpdateAPIView,
+    RetrieveAPIView
 )
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.exceptions import PermissionDenied
@@ -86,6 +87,20 @@ class LandlordBookingListView(ListAPIView):
         'start_date',
         'created_at'
     ]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.role == UserType.LANDLORD:
+            queryset = Booking.objects.select_related(
+                'rent_property', 'tenant'
+            ).filter(rent_property__owner=user)
+            return queryset
+        raise PermissionDenied('Only landlords can access this endpoint.')
+
+
+class LandlordBookingView(RetrieveAPIView):
+    serializer_class = BookingSerializer
 
     def get_queryset(self):
         user = self.request.user

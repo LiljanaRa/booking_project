@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils import timezone
 
 from apps.properties.models.review import Review
 from apps.properties.serializers.rent_property import PropertyShortSerializer
@@ -26,11 +27,23 @@ class ReviewCreateSerializer(serializers.ModelSerializer):
         booking = Booking.objects.filter(
             tenant=user,
             rent_property=value,
+            status=BookingStatus.CONFIRMED.value,
+            end_date__lt=timezone.now().date()
+        ).first()
+
+        if booking:
+            booking.status = BookingStatus.COMPLETED.value
+            booking.save()
+
+        booking = Booking.objects.filter(
+            tenant=user,
+            rent_property=value,
             status=BookingStatus.COMPLETED.value
         ).exists()
 
         if not booking:
-            raise serializers.ValidationError('You can only leave a review after completing a booking for this property.')
+            raise serializers.ValidationError(
+                'You can only leave a review after completing a booking for this property.')
         return value
 
     def validate(self, attrs):
