@@ -109,7 +109,7 @@ class BookingStatusUpdateSerializer(serializers.ModelSerializer):
         if user.role == UserType.TENANT:
             if value != BookingStatus.CANCELLED.value:
                 raise serializers.ValidationError("Tenants can only cancel bookings.")
-            if (booking.start_date - timezone.now().date()) < timedelta(days=7):
+            if (booking.start_date.date() - timezone.now().date()) < timedelta(days=7):
                 raise serializers.ValidationError("Cannot cancel less than 7 days before start date.")
 
         elif user.role == UserType.LANDLORD:
